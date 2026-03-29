@@ -186,6 +186,10 @@ export class InteractiveMode {
 	// Thinking block visibility state
 	private hideThinkingBlock = false;
 
+	// Hidden thinking label customization
+	private readonly defaultHiddenThinkingLabel = "Thinking...";
+	private customHiddenThinkingLabel: string | undefined;
+
 	// Skill commands: command name -> skill file path
 	private skillCommands = new Map<string, string>();
 
@@ -1557,6 +1561,13 @@ export class InteractiveMode {
 					this.pendingWorkingMessage = message;
 				}
 			},
+			setHiddenThinkingLabel: (label) => {
+				this.customHiddenThinkingLabel = label;
+				// Update streaming component if it exists
+				if (this.streamingComponent) {
+					this.streamingComponent.setHiddenThinkingLabel(label ?? this.defaultHiddenThinkingLabel);
+				}
+			},
 			setWidget: (key, content, options) => this.setExtensionWidget(key, content, options),
 			setFooter: (factory) => this.setExtensionFooter(factory),
 			setHeader: (factory) => this.setExtensionHeader(factory),
@@ -2257,6 +2268,7 @@ export class InteractiveMode {
 						undefined,
 						this.hideThinkingBlock,
 						this.getMarkdownThemeWithSettings(),
+						this.customHiddenThinkingLabel ?? this.defaultHiddenThinkingLabel,
 					);
 					this.streamingMessage = event.message;
 					this.chatContainer.addChild(this.streamingComponent);
@@ -2612,6 +2624,7 @@ export class InteractiveMode {
 					message,
 					this.hideThinkingBlock,
 					this.getMarkdownThemeWithSettings(),
+					this.customHiddenThinkingLabel ?? this.defaultHiddenThinkingLabel,
 				);
 				this.chatContainer.addChild(assistantComponent);
 				break;
@@ -2920,6 +2933,7 @@ export class InteractiveMode {
 		// If streaming, re-add the streaming component with updated visibility and re-render
 		if (this.streamingComponent && this.streamingMessage) {
 			this.streamingComponent.setHideThinkingBlock(this.hideThinkingBlock);
+			this.streamingComponent.setHiddenThinkingLabel(this.customHiddenThinkingLabel ?? this.defaultHiddenThinkingLabel);
 			this.streamingComponent.updateContent(this.streamingMessage);
 			this.chatContainer.addChild(this.streamingComponent);
 		}
